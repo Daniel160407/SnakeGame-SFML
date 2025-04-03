@@ -1,11 +1,34 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include "Food.hpp"
 
 using namespace std;
 
+const long SCREEN_WIDTH = 1920;
+const long SCREEN_HEIGHT = 1080;
+
+void drawFood(sf::RenderWindow &window, Food &food)
+{
+    sf::CircleShape foodShape(10.f);
+    foodShape.setPosition(food.getPosX(), food.getPosY());
+    foodShape.setFillColor(sf::Color::Red);
+    window.draw(foodShape);
+}
+
+bool checkFoodCollision(const sf::RectangleShape &snake, const Food &food)
+{
+    sf::FloatRect snakeBounds = snake.getGlobalBounds();
+    sf::FloatRect foodBounds(food.getPosX(), food.getPosY(), 20.f, 20.f);
+    return snakeBounds.intersects(foodBounds);
+}
+
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Snake Game");
+    srand(time(0));
+
+    sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Snake Game");
     window.setFramerateLimit(60);
 
     sf::RectangleShape snake(sf::Vector2f(20, 20));
@@ -18,6 +41,8 @@ int main()
     sf::Clock clock;
     float moveInterval = 0.01f;
     float timeSinceLastMove = 0.0f;
+
+    Food currentFood(rand() % (SCREEN_WIDTH-20), rand() % (SCREEN_HEIGHT-20));
 
     while (window.isOpen())
     {
@@ -53,13 +78,12 @@ int main()
         if (timeSinceLastMove >= moveInterval)
         {
             timeSinceLastMove = 0.0f;
-            
+
             sf::Vector2f newPosition = snake.getPosition();
             switch (currentDirection)
             {
                 case 1:
-                    if (newPosition.y > 0)
-                        newPosition.y -= moveSpeed;
+                    if (newPosition.y > 0) newPosition.y -= moveSpeed;
                     break;
                 case 2:
                     if (newPosition.y < window.getSize().y - snake.getSize().y)
@@ -70,15 +94,21 @@ int main()
                         newPosition.x += moveSpeed;
                     break;
                 case 4:
-                    if (newPosition.x > 0)
-                        newPosition.x -= moveSpeed;
+                    if (newPosition.x > 0) newPosition.x -= moveSpeed;
                     break;
             }
             snake.setPosition(newPosition);
         }
 
+        if (checkFoodCollision(snake, currentFood))
+        {
+            currentFood.setPosX(rand() % (SCREEN_WIDTH-20));
+            currentFood.setPosY(rand() % (SCREEN_HEIGHT-20));
+        }
+
         window.clear();
         window.draw(snake);
+        drawFood(window, currentFood);
         window.display();
     }
 
