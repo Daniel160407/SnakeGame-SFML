@@ -2,22 +2,36 @@
 
 Food::Food(float posX, float posY) : posX(posX), posY(posY) {}
 
-float Food::getPosX() const {
+float Food::getPosX() const
+{
     return posX;
 }
 
-float Food::getPosY() const {
+float Food::getPosY() const
+{
     return posY;
 }
 
-void Food::setPosX(float posX) {
+bool Food::isBigFood() const
+{
+    return bigFood;
+}
+
+void Food::setPosX(float posX)
+{
     this->posX = posX;
 }
 
-void Food::setPosY(float posY) {
+void Food::setPosY(float posY)
+{
     this->posY = posY;
 }
 
-Food::~Food() {
-   
+void Food::setBigFood(bool bigFood)
+{
+    this->bigFood = bigFood;
+}
+
+Food::~Food()
+{
 }

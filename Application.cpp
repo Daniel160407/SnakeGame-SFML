@@ -18,10 +18,20 @@ const int SCORE_INCREMENT = 1;
 
 void drawFood(sf::RenderWindow &window, Food &food)
 {
-    sf::CircleShape foodShape(FOOD_SIZE);
-    foodShape.setPosition(food.getPosX(), food.getPosY());
-    foodShape.setFillColor(sf::Color::Red);
-    window.draw(foodShape);
+    if (food.isBigFood())
+    {
+        sf::CircleShape foodShape(FOOD_SIZE + 10);
+        foodShape.setPosition(food.getPosX(), food.getPosY());
+        foodShape.setFillColor(sf::Color::Blue);
+        window.draw(foodShape);
+    }
+    else
+    {
+        sf::CircleShape foodShape(FOOD_SIZE);
+        foodShape.setPosition(food.getPosX(), food.getPosY());
+        foodShape.setFillColor(sf::Color::Red);
+        window.draw(foodShape);
+    }
 }
 
 bool checkFoodCollision(const sf::RectangleShape &snakeHead, const Food &food)
@@ -31,7 +41,7 @@ bool checkFoodCollision(const sf::RectangleShape &snakeHead, const Food &food)
     return snakeBounds.intersects(foodBounds);
 }
 
-void showGameOverScreen(sf::RenderWindow &window, sf::Font &font, int score, float gameTime)
+int showGameOverScreen(sf::RenderWindow &window, sf::Font &font, int score, float gameTime)
 {
     sf::Text gameOverText;
     gameOverText.setFont(font);
@@ -78,18 +88,18 @@ void showGameOverScreen(sf::RenderWindow &window, sf::Font &font, int score, flo
             if (event.type == sf::Event::Closed)
             {
                 window.close();
-                return;
+                return -1;
             }
             if (event.type == sf::Event::KeyPressed)
             {
                 if (event.key.code == sf::Keyboard::R)
                 {
-                    return;
+                    return 0;
                 }
                 if (event.key.code == sf::Keyboard::Escape)
                 {
                     window.close();
-                    return;
+                    return -1;
                 }
             }
         }
@@ -101,6 +111,7 @@ void showGameOverScreen(sf::RenderWindow &window, sf::Font &font, int score, flo
         window.draw(restartText);
         window.display();
     }
+    return -1;
 }
 
 int main()
@@ -114,11 +125,10 @@ int main()
     if (!font.loadFromFile("src/fonts/Pixel_Game.otf"))
     {
         cerr << "Failed to load font!" << endl;
+        return -1;
     }
 
-    bool gameRunning = true;
-
-    while (gameRunning)
+    while (true)
     {
         int score = 0;
         sf::Clock gameClock;
@@ -160,7 +170,12 @@ int main()
                 if (event.type == sf::Event::Closed)
                 {
                     window.close();
-                    gameRunning = false;
+                    return -1;
+                }
+                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
+                {
+                    window.close();
+                    return -1;
                 }
             }
 
@@ -229,9 +244,26 @@ int main()
 
                     if (checkFoodCollision(snakeParts[0], currentFood))
                     {
-                        score += SCORE_INCREMENT;
+                        if (currentFood.isBigFood())
+                        {
+                            score += SCORE_INCREMENT + 10;
+                        }
+                        else
+                        {
+                            score += SCORE_INCREMENT;
+                        }
                         currentFood.setPosX(rand() % (SCREEN_WIDTH - 40));
                         currentFood.setPosY(rand() % (SCREEN_HEIGHT - 40));
+
+                        int random = (rand() % 100);
+                        if (random % 10 == 0)
+                        {
+                            currentFood.setBigFood(true);
+                        }
+                        else
+                        {
+                            currentFood.setBigFood(false);
+                        }
 
                         sf::RectangleShape newPart(sf::Vector2f(SNAKE_SIZE, SNAKE_SIZE));
                         newPart.setPosition(previousPositions.back());
@@ -256,7 +288,6 @@ int main()
                 timeStream << "Time: " << fixed << setprecision(1) << gameClock.getElapsedTime().asSeconds() << "s";
                 timeText.setString(timeStream.str());
 
-                // Rendering
                 window.clear();
                 for (const auto &part : snakeParts)
                 {
@@ -272,7 +303,15 @@ int main()
         if (gameOver && window.isOpen())
         {
             float finalTime = gameClock.getElapsedTime().asSeconds();
-            showGameOverScreen(window, font, score, finalTime);
+            int result = showGameOverScreen(window, font, score, finalTime);
+            if (result == -1)
+            {
+                return -1;
+            }
+        }
+        else
+        {
+            return -1;
         }
     }
 
