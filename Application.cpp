@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
@@ -128,6 +129,23 @@ int main()
         return -1;
     }
 
+    sf::SoundBuffer eatSoundBuffer;
+    sf::SoundBuffer gameOverSoundBuffer;
+    sf::Sound eatSound;
+    sf::Sound gameOverSound;
+
+    if (!eatSoundBuffer.loadFromFile("src/sounds/food-eaten.wav"))
+    {
+        cerr << "Failed to load eat sound!" << endl;
+    }
+    if (!gameOverSoundBuffer.loadFromFile("src/sounds/game-over.wav"))
+    {
+        cerr << "Failed to load game over sound!" << endl;
+    }
+
+    eatSound.setBuffer(eatSoundBuffer);
+    gameOverSound.setBuffer(gameOverSoundBuffer);
+
     while (true)
     {
         int score = 0;
@@ -244,13 +262,21 @@ int main()
 
                     if (checkFoodCollision(snakeParts[0], currentFood))
                     {
+                        eatSound.play();
+                        sf::RectangleShape newPart(sf::Vector2f(SNAKE_SIZE, SNAKE_SIZE));
+                        newPart.setPosition(previousPositions.back());
+                        newPart.setFillColor(sf::Color(0, 200, 0));
+
                         if (currentFood.isBigFood())
                         {
                             score += SCORE_INCREMENT + 10;
+                            snakeParts.push_back(newPart);
+                            snakeParts.push_back(newPart);
                         }
                         else
                         {
                             score += SCORE_INCREMENT;
+                            snakeParts.push_back(newPart);
                         }
                         currentFood.setPosX(rand() % (SCREEN_WIDTH - 40));
                         currentFood.setPosY(rand() % (SCREEN_HEIGHT - 40));
@@ -264,11 +290,6 @@ int main()
                         {
                             currentFood.setBigFood(false);
                         }
-
-                        sf::RectangleShape newPart(sf::Vector2f(SNAKE_SIZE, SNAKE_SIZE));
-                        newPart.setPosition(previousPositions.back());
-                        newPart.setFillColor(sf::Color(0, 200, 0));
-                        snakeParts.push_back(newPart);
                     }
 
                     for (size_t i = 1; i < snakeParts.size(); i++)
@@ -302,6 +323,7 @@ int main()
 
         if (gameOver && window.isOpen())
         {
+            gameOverSound.play();
             float finalTime = gameClock.getElapsedTime().asSeconds();
             int result = showGameOverScreen(window, font, score, finalTime);
             if (result == -1)
