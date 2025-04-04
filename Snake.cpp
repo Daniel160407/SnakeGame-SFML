@@ -102,6 +102,10 @@ void Snake::grow(bool bigFood)
     moveInterval = std::max(moveInterval - SPEED_INCREMENT, MIN_INTERVAL);
 }
 
+void Snake::removeBody() {
+    parts.erase(parts.begin() + 1, parts.end());
+}
+
 bool Snake::checkSelfCollision() const
 {
     const auto &head = parts[0];

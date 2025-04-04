@@ -6,9 +6,10 @@
 #include <SFML/Audio.hpp>
 #include "Snake.hpp"
 #include "Food.hpp"
+#include "WallsGenerator.hpp"
 
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+#define SCREEN_WIDTH 1000
+#define SCREEN_HEIGHT 800
 #define SNAKE_SIZE 20.f
 #define FOOD_SIZE 10.f
 #define SCORE_INCREMENT 1
@@ -26,6 +27,7 @@ private:
     void drawUI();
     void drawFood();
     bool checkFoodCollision();
+    bool isAbleToGenerateFood(const sf::CircleShape& food);
     int showGameOverScreen();
 
     sf::RenderWindow window;
@@ -36,6 +38,7 @@ private:
 
     Snake snake;
     Food food;
+    WallsGenerator wallsGenerator;
 
     int width, height;
     int score;

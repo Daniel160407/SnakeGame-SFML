@@ -1,4 +1,6 @@
-#pragma once
+#ifndef SNAKE_HPP
+#define SNAKE_HPP
+
 #include <SFML/Graphics.hpp>
 #include <vector>
 
@@ -13,6 +15,7 @@ public:
     void handleInput();
     void update(float deltaTime);
     void grow(bool bigFood);
+    void removeBody();
     bool checkSelfCollision() const;
     void draw(sf::RenderWindow& window) const;
     sf::RectangleShape getHead() const;
@@ -31,3 +34,5 @@ private:
     const float SPEED_INCREMENT = 0.0005f;
     int direction;
 };
+
+#endif

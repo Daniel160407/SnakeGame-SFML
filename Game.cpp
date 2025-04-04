@@ -11,6 +11,7 @@ Game::Game(int width, int height)
       width(width), height(height),
       snake(20.f, 20.f, width, height),
       food(rand() % (width - 40), rand() % (height - 40)),
+      wallsGenerator(width, height),
       score(0), isRunning(true)
 {
     window.setFramerateLimit(60);
@@ -35,6 +36,8 @@ Game::Game(int width, int height)
 
     eatSound.setBuffer(eatSoundBuffer);
     gameOverSound.setBuffer(gameOverSoundBuffer);
+
+    wallsGenerator.generateWalls(snake.getHead().getPosition().x, snake.getHead().getPosition().y);
 }
 
 void Game::run() {
@@ -69,9 +72,22 @@ void Game::update() {
         food.setPosX(rand() % (width - 40));
         food.setPosY(rand() % (height - 40));
         food.setBigFood((rand() % 100) % 10 == 0);
+
+        sf::CircleShape tempFood(FOOD_SIZE + 10);
+        tempFood.setPosition(food.getPosX(), food.getPosY());
+
+        while (!isAbleToGenerateFood(tempFood)) {
+            food.setPosX(rand() % (width - 40));
+            food.setPosY(rand() % (height - 40));
+            tempFood.setPosition(food.getPosX(), food.getPosY());
+        }
+
+        if (snake.getParts().size() % 10 == 0) {
+            wallsGenerator.generateWalls(snake.getHead().getPosition().x, snake.getHead().getPosition().y);
+        }
     }
 
-    if (snake.checkSelfCollision()) {
+    if (snake.checkSelfCollision() || wallsGenerator.isCollidingWithWall(snake.getHead().getGlobalBounds())) {
         gameOverSound.play();
         float finalTime = gameClock.getElapsedTime().asSeconds();
         int result = showGameOverScreen();
@@ -82,6 +98,7 @@ void Game::update() {
 
 void Game::render() {
     window.clear();
+    wallsGenerator.drawWalls(window);
     snake.draw(window);
     drawFood();
     drawUI();
@@ -101,20 +118,10 @@ void Game::drawUI() {
 }
 
 void Game::drawFood() {
-    if (food.isBigFood())
-    {
-        sf::CircleShape foodShape(FOOD_SIZE + 10);
-        foodShape.setPosition(food.getPosX(), food.getPosY());
-        foodShape.setFillColor(sf::Color::Blue);
-        window.draw(foodShape);
-    }
-    else
-    {
-        sf::CircleShape foodShape(FOOD_SIZE);
-        foodShape.setPosition(food.getPosX(), food.getPosY());
-        foodShape.setFillColor(sf::Color::Red);
-        window.draw(foodShape);
-    }
+    sf::CircleShape foodShape(food.isBigFood() ? FOOD_SIZE + 10 : FOOD_SIZE);
+    foodShape.setPosition(food.getPosX(), food.getPosY());
+    foodShape.setFillColor(food.isBigFood() ? sf::Color::Blue : sf::Color::Red);
+    window.draw(foodShape);
 }
 
 bool Game::checkFoodCollision() {
@@ -123,7 +130,19 @@ bool Game::checkFoodCollision() {
     );
 }
 
+bool Game::isAbleToGenerateFood(const sf::CircleShape& food) {
+    for (const sf::RectangleShape& wall : wallsGenerator.getGeneratedWalls()) {
+        if (wall.getGlobalBounds().intersects(food.getGlobalBounds())) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void Game::reset() {
+    if (snake.getParts().size() > 1){
+        snake.removeBody();
+    }
     snake.setSize(20.f);
     snake.setSpeed(20.f);
     snake.setScreenWidth(width);
@@ -133,6 +152,7 @@ void Game::reset() {
     food.setBigFood(false);
     score = 0;
     gameClock.restart();
+    wallsGenerator.generateWalls(snake.getHead().getPosition().x, snake.getHead().getPosition().y);
 }
 
 int Game::showGameOverScreen() {
@@ -142,8 +162,8 @@ int Game::showGameOverScreen() {
     gameOverText.setCharacterSize(100);
     gameOverText.setFillColor(sf::Color::Red);
     gameOverText.setStyle(sf::Text::Bold);
-    gameOverText.setPosition(SCREEN_WIDTH / 2.f - gameOverText.getLocalBounds().width / 2.f,
-                             SCREEN_HEIGHT / 2.f - 150);
+    gameOverText.setPosition(width / 2.f - gameOverText.getLocalBounds().width / 2.f,
+                             height / 2.f - 150);
 
     std::stringstream scoreStream;
     scoreStream << "Final Score: " << score;
@@ -152,8 +172,8 @@ int Game::showGameOverScreen() {
     scoreText.setString(scoreStream.str());
     scoreText.setCharacterSize(60);
     scoreText.setFillColor(sf::Color::White);
-    scoreText.setPosition(SCREEN_WIDTH / 2.f - scoreText.getLocalBounds().width / 2.f,
-                          SCREEN_HEIGHT / 2.f);
+    scoreText.setPosition(width / 2.f - scoreText.getLocalBounds().width / 2.f,
+                          height / 2.f);
 
     std::stringstream timeStream;
     timeStream << "Time: " << std::fixed << std::setprecision(1) << gameTime << " seconds";
@@ -162,16 +182,16 @@ int Game::showGameOverScreen() {
     timeText.setString(timeStream.str());
     timeText.setCharacterSize(50);
     timeText.setFillColor(sf::Color::White);
-    timeText.setPosition(SCREEN_WIDTH / 2.f - timeText.getLocalBounds().width / 2.f,
-                         SCREEN_HEIGHT / 2.f + 80);
+    timeText.setPosition(width / 2.f - timeText.getLocalBounds().width / 2.f,
+                         height / 2.f + 80);
 
     sf::Text restartText;
     restartText.setFont(font);
     restartText.setString("Press R to Restart or ESC to Exit");
     restartText.setCharacterSize(40);
     restartText.setFillColor(sf::Color::Yellow);
-    restartText.setPosition(SCREEN_WIDTH / 2.f - restartText.getLocalBounds().width / 2.f,
-                            SCREEN_HEIGHT / 2.f + 180);
+    restartText.setPosition(width / 2.f - restartText.getLocalBounds().width / 2.f,
+                            height / 2.f + 180);
 
     while (window.isOpen())
     {
