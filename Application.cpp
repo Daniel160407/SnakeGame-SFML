@@ -13,7 +13,7 @@ using namespace std;
 const long SCREEN_WIDTH = 800;
 const long SCREEN_HEIGHT = 600;
 const float SNAKE_SIZE = 20.f;
-const float SNAKE_MOVE_SPEED = 20.f;
+float SNAKE_MOVE_SPEED = 20.f;
 const float FOOD_SIZE = 10.f;
 const int SCORE_INCREMENT = 1;
 
@@ -179,6 +179,9 @@ int main()
 
         bool gameOver = false;
         float timeSinceLastMove = 0.0f;
+        float moveInterval = 0.1f;
+        const float MIN_INTERVAL = 0.05f;
+        const float SPEED_INCREMENT = 0.0005f;
 
         while (window.isOpen() && !gameOver)
         {
@@ -219,7 +222,7 @@ int main()
                 float deltaTime = frameClock.restart().asSeconds();
                 timeSinceLastMove += deltaTime;
 
-                if (timeSinceLastMove >= 0.1f)
+                if (timeSinceLastMove >= moveInterval)
                 {
                     timeSinceLastMove = 0.0f;
 
@@ -281,8 +284,10 @@ int main()
                         currentFood.setPosX(rand() % (SCREEN_WIDTH - 40));
                         currentFood.setPosY(rand() % (SCREEN_HEIGHT - 40));
 
-                        int random = (rand() % 100);
-                        if (random % 10 == 0)
+                        // Make the snake faster by decreasing the move interval
+                        moveInterval = max(moveInterval - SPEED_INCREMENT, MIN_INTERVAL);
+
+                        if ((rand() % 100) % 10 == 0)
                         {
                             currentFood.setBigFood(true);
                         }

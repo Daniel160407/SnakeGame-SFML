@@ -1,4 +1,3 @@
-// Food.hpp
 #ifndef FOOD_HPP
 #define FOOD_HPP
 
