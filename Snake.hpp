@@ -12,6 +12,7 @@ public:
     void setSpeed(float speed);
     void setScreenWidth(int screenWidth);
     void setScreenHeight(int screenHeight);
+    void setMoveInterval(float moveInterval);
     void handleInput();
     void update(float deltaTime);
     void grow(bool bigFood);

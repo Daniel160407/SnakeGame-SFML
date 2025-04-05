@@ -140,11 +140,12 @@ bool Game::isAbleToGenerateFood(const sf::CircleShape& food) {
 }
 
 void Game::reset() {
-    if (snake.getParts().size() > 1){
+    if (snake.getParts().size() > 1) {
         snake.removeBody();
     }
     snake.setSize(20.f);
     snake.setSpeed(20.f);
+    snake.setMoveInterval(0.1f);
     snake.setScreenWidth(width);
     snake.setScreenHeight(height);
     food.setPosX(rand() % (width - 40));

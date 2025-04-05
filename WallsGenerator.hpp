@@ -6,7 +6,7 @@
 #include "Wall.hpp"
 
 constexpr int TILE_SIZE = 20;
-constexpr int WALLS_AMOUNT = 20;
+constexpr int WALLS_AMOUNT = 15;
 
 class WallsGenerator {
 private:

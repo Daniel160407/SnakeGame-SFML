@@ -4,7 +4,7 @@
 int main() {
     srand(static_cast<unsigned>(time(nullptr)));
 
-    Game game(800, 600);
+    Game game(1000, 800);
     game.run();
 
     return 0;

@@ -16,9 +16,12 @@ void Snake::setSize(float size)
     this->size = size;
 }
 
-void Snake::setSpeed(float speed)
-{
+void Snake::setSpeed(float speed) {
     this->speed = speed;
+}
+
+void Snake::setMoveInterval(float moveInterval) {
+    this->moveInterval = moveInterval;
 }
 
 void Snake::setScreenWidth(int screenWidth)
