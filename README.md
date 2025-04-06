@@ -4,11 +4,13 @@ A classic Snake game built with **C++** and **SFML**. Eat food, grow longer, avo
 
 ![Screenshot 1](/src/screenshots/game.png)
 ![Screenshot 2](/src/screenshots/gameover.png)
+![Screenshot 3](/src/screenshots/menu.png)
 
 ---
 
 ## 🎮 Features
 
+- Comportable **menu** for choosing game dificulty and extra **edditions**
 - Classic Snake movement and growth mechanics
 - Randomly generated **walls** after every 10 food pieces
 - **Big food** bonuses (worth extra points!)

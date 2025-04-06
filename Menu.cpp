@@ -271,7 +271,7 @@ void Menu::draw(sf::RenderWindow& window) {
     
     sf::Text versionText;
     versionText.setFont(font);
-    versionText.setString("v1.0 © 2023");
+    versionText.setString("v1.0 © 2025");
     versionText.setCharacterSize(20);
     versionText.setFillColor(sf::Color(150, 150, 150, 150));
     versionText.setPosition(windowWidth - versionText.getLocalBounds().width - 20, 

@@ -11,7 +11,7 @@ Game::Game(int width, int height)
       width(width), height(height),
       menu(width, height),
       snake(20.f, 20.f, width, height),
-      food(rand() % (width - 40), rand() % (height - 40)),
+      food(rand() % (width - 40), rand() % (height - 40), FOOD_SIZE),
       wallsGenerator(width, height, 15),
       score(0), isRunning(true)
 {
@@ -109,7 +109,7 @@ void Game::update() {
         food.setPosY(rand() % (height - 40));
         food.setBigFood((rand() % 100) % 10 == 0);
 
-        sf::CircleShape tempFood(FOOD_SIZE + 10);
+        sf::CircleShape tempFood(food.getFoodSize() + 10);
         tempFood.setPosition(food.getPosX(), food.getPosY());
 
         while (!isAbleToGenerateFood(tempFood)) {
@@ -136,7 +136,7 @@ void Game::render() {
     window.clear();
     wallsGenerator.drawWalls(window);
     snake.draw(window);
-    drawFood();
+    food.draw(window);
     drawUI();
     window.display();
 }
@@ -153,16 +153,9 @@ void Game::drawUI() {
     window.draw(timeText);
 }
 
-void Game::drawFood() {
-    sf::CircleShape foodShape(food.isBigFood() ? FOOD_SIZE + 10 : FOOD_SIZE);
-    foodShape.setPosition(food.getPosX(), food.getPosY());
-    foodShape.setFillColor(food.isBigFood() ? sf::Color::Blue : sf::Color::Red);
-    window.draw(foodShape);
-}
-
 bool Game::checkFoodCollision() {
     return snake.getHead().getGlobalBounds().intersects(
-        sf::FloatRect(food.getPosX(), food.getPosY(), FOOD_SIZE * 2, FOOD_SIZE * 2)
+        sf::FloatRect(food.getPosX(), food.getPosY(), food.getFoodSize() * 2, food.getFoodSize() * 2)
     );
 }
 
