@@ -1,7 +1,7 @@
-#include "Game.hpp"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include "Game.hpp"
 
 #define FOOD_SIZE 10.f
 #define SCORE_INCREMENT 1
@@ -9,9 +9,10 @@
 Game::Game(int width, int height)
     : window(sf::VideoMode(width, height), "Snake Game"),
       width(width), height(height),
+      menu(width, height),
       snake(20.f, 20.f, width, height),
       food(rand() % (width - 40), rand() % (height - 40)),
-      wallsGenerator(width, height),
+      wallsGenerator(width, height, 15),
       score(0), isRunning(true)
 {
     window.setFramerateLimit(60);
@@ -36,15 +37,50 @@ Game::Game(int width, int height)
 
     eatSound.setBuffer(eatSoundBuffer);
     gameOverSound.setBuffer(gameOverSoundBuffer);
-
-    wallsGenerator.generateWalls(snake.getHead().getPosition().x, snake.getHead().getPosition().y);
 }
 
 void Game::run() {
+    while (window.isOpen() && !menu.shouldStartGame()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+                return;
+            }
+            menu.handleEvent(event);
+        }
+        menu.draw(window);
+        window.display();
+    }
+
+    configureSettings();
+
     while (window.isOpen() && isRunning) {
         processEvents();
         update();
         render();
+    }
+}
+
+void Game::configureSettings() {
+    switch (menu.getGameLevel()) {
+        case Menu::EASY:
+            wallsGenerator.setWallsAmount(10);
+            break;
+        case Menu::MEDIUM:
+            wallsGenerator.setWallsAmount(15);
+            break;
+        case Menu::HARD:
+            wallsGenerator.setWallsAmount(20);
+            break;
+        default:
+            wallsGenerator.setWallsAmount(15);
+    }
+
+    wallsGenerator.generateWalls(snake.getHead().getPosition().x, snake.getHead().getPosition().y);
+
+    if (!menu.getEnableWalls()) {
+        wallsGenerator.clearWalls();
     }
 }
 
@@ -131,7 +167,7 @@ bool Game::checkFoodCollision() {
 }
 
 bool Game::isAbleToGenerateFood(const sf::CircleShape& food) {
-    for (const sf::RectangleShape& wall : wallsGenerator.getGeneratedWalls()) {
+    for (const auto& wall : wallsGenerator.getGeneratedWalls()) {
         if (wall.getGlobalBounds().intersects(food.getGlobalBounds())) {
             return false;
         }

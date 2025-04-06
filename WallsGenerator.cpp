@@ -3,8 +3,8 @@
 #include <ctime>
 #include <iostream>
 
-WallsGenerator::WallsGenerator(int screenWidth, int screenHeight)
-    : screenWidth(screenWidth), screenHeight(screenHeight) {
+WallsGenerator::WallsGenerator(int screenWidth, int screenHeight, int wallsAmount)
+    : screenWidth(screenWidth), screenHeight(screenHeight), wallsAmount(wallsAmount) {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 }
 
@@ -12,9 +12,17 @@ std::vector<sf::RectangleShape> WallsGenerator::getGeneratedWalls() {
     return generatedWalls;
 }
 
+int WallsGenerator::getWallsAmount() const {
+    return wallsAmount;
+}
+
+void WallsGenerator::setWallsAmount(int amount) {
+    this->wallsAmount = amount;
+}
+
 void WallsGenerator::generateWalls(float snakePosX, float snakePosY) {
     walls.clear();
-    for (int i = 0; i < WALLS_AMOUNT; i++) {
+    for (int i = 0; i < wallsAmount; i++) {
         int wallPosX = (std::rand() % (screenWidth / TILE_SIZE)) * TILE_SIZE;
         int wallPosY = (std::rand() % (screenHeight / TILE_SIZE)) * TILE_SIZE;
 

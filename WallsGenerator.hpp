@@ -6,19 +6,21 @@
 #include "Wall.hpp"
 
 constexpr int TILE_SIZE = 20;
-constexpr int WALLS_AMOUNT = 15;
 
 class WallsGenerator {
 private:
     int screenWidth;
     int screenHeight;
+    int wallsAmount;
     std::vector<Wall> walls;
     std::vector<sf::RectangleShape> generatedWalls;
 
 public:
-    WallsGenerator(int screenWidth, int screenHeight);
+    WallsGenerator(int screenWidth, int screenHeight, int wallsAmount);
     
     std::vector<sf::RectangleShape> getGeneratedWalls();
+    int getWallsAmount() const;
+    void setWallsAmount(int amount);
     void generateWalls(float snakePosX, float snakePosY);
     void drawWalls(sf::RenderWindow &window);
     bool isCollidingWithWall(const sf::FloatRect &bounds) const;

@@ -7,6 +7,7 @@
 #include "Snake.hpp"
 #include "Food.hpp"
 #include "WallsGenerator.hpp"
+#include "Menu.hpp"
 
 #define SCREEN_WIDTH 1000
 #define SCREEN_HEIGHT 800
@@ -20,6 +21,7 @@ public:
     void run();
 
 private:
+    void configureSettings();
     void processEvents();
     void update();
     void render();
@@ -36,6 +38,7 @@ private:
     sf::Sound eatSound, gameOverSound;
     sf::Text scoreText, timeText;
 
+    Menu menu;
     Snake snake;
     Food food;
     WallsGenerator wallsGenerator;
